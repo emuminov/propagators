@@ -74,16 +74,19 @@
           collect cell)))
 
 (defun get-block-cells (n sudoku-cells)
-  (let ((dimension (get-sudoku-dimensions sudoku-cells)))
-    (concatenate 'list
-                 (loop for i to (1- (/ dimension 2))
-                       for cell = (nth i sudoku-cells)
-                       collect cell)
-                 (loop for i to (1- (/ dimension 2))
-                       for cell = (nth (+ i dimension) sudoku-cells)
-                       collect cell))))
+  (let* ((dimension (get-sudoku-dimensions sudoku-cells))
+         (blocks-per-row (truncate (log dimension 2))))
+    (multiple-value-bind (row-start col-start) (truncate n blocks-per-row)
+      (let ((start-index (+ (* col-start blocks-per-row) (* row-start (* dimension blocks-per-row)))))
+        (loop for j to (1- blocks-per-row)
+              append (loop for i to (1- blocks-per-row)
+                           for cell = (nth (+ start-index i (* dimension j)) sudoku-cells)
+                           collect cell))))))
 
-(get-block-cells 3 '(0 1 2 3
+
+
+
+(get-block-cells 2 '(0 1 2 3
                      4 5 6 7
                      8 9 10 11
                      12 13 14 15))
